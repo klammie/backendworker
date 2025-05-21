@@ -1,0 +1,9 @@
+datasource db {
+  provider = "postgresql" // ✅ Ensure this matches your actual DB
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./prisma/generated" // ✅ Define output path to avoid future warnings
+}

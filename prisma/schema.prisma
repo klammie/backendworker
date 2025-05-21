@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String          @id @default(uuid()) // ✅ Ensure User has an ID
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  userName      String?         @unique
+  image         String?
+  accBal        Int?
+  keyz          Int?
+  accounts      Account[]
+  sessions      Session[]
+  tradeLogs     TradeLogs[] // ✅ Create a relation array linking trades to a user
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model TradeLogs {
+  id     String @id @default(uuid()) // Unique identifier for the trade log
+  userId String // ✅ Explicitly store userId
+  crypto String
+  result Int
+
+  // ✅ Define relationship if `User` model exists
+  user User @relation(fields: [userId], references: [id])
+}
+
+model DemoAccount {
+  id       String  @id @unique // Store userId here instead of UUID
+  type     String
+  image    String
+  amount   Int
+  isActive Boolean @default(false)
+  cryptoId String?
+}
+
+model LiveAccount {
+  id       String  @id @unique // Store userId here instead of UUID
+  type     String
+  image    String
+  amount   Int
+  isActive Boolean @default(false)
+  cryptoId String?
+}
+
+model RecentActivities {
+  id     String @id @default(uuid()) // This can remain UUID if activities are independent
+  userId String @unique
+  image  String
+  name   String
+  amount Int
+}
+
+model ProfitsLoss {
+  id        String @id @unique // Store userId here
+  profits   Int
+  loss      Int
+  breakeven Int
+}
+
+model InvestmentSummary {
+  id         String @id @unique // Store userId
+  cryptoName String // ✅ Stores the name of the cryptocurrency
+  wins       Int // ✅ Tracks winning trades
+  loss       Int // ✅ Tracks losing trades
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
