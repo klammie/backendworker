@@ -6,7 +6,10 @@ import { Request, Response } from "express";
 import { CryptoAccount, generateExecutionInterval } from "./tradeProcessor";
 
 const app = express();
-const port = 3000;
+const PORT = Number(process.env.PORT) || 8080;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
 
 // ✅ Use Redis client for BullMQ
 const tradeQueue = new Queue("trade-queue", { connection: redisClient });
