@@ -59,6 +59,6 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
