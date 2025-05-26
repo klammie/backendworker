@@ -52,6 +52,10 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
+app.get("/home", (req, res) => {
+  res.send("Welcome to Corefunction API");
+});
+
 // ✅ Graceful shutdown handling
 process.on("SIGINT", async () => {
   await redisClient.quit();
