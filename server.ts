@@ -62,7 +62,3 @@ process.on("SIGINT", async () => {
   console.log("Redis connection closed.");
   process.exit(0);
 });
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
