@@ -53,7 +53,7 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/home", (req, res) => {
-  res.send("Welcome to Corefunction API");
+  res.status(200).send("Welcome to Corefunction API");
 });
 
 // ✅ Graceful shutdown handling
