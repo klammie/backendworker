@@ -1,13 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import Redis from "ioredis";
+import { redisClient } from "./redisClient";
 
 const prisma = new PrismaClient();
-const redis = new Redis({
-  host: "localhost",
-  port: 6379,
-  maxRetriesPerRequest: null,  // ✅ Fix BullMQ Redis requirement
-  enableOfflineQueue: false,   // ✅ Avoid unnecessary queued commands
-});
+const redis = redisClient;
 
 // ✅ Define Trade Type for Stronger Type Safety
 type TradeData = {
