@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config(); // ✅ Load environment variables before anything else
+
 import express from "express";
-import cors from "cors"
+import cors from "cors";
 import { Queue } from "bullmq";
 import { getAccountById } from "./db";
 import { redisClient } from "./redisClient"; // ✅ Use central Redis client
