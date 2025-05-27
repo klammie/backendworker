@@ -3,11 +3,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const redisClient = new Redis({
-  host: process.env.UPSTASH_REDIS_REST_URL, // ✅ Matches the correct env variable
-  password: process.env.UPSTASH_REDIS_REST_TOKEN, // ✅ Uses the correct token name
-  tls: { rejectUnauthorized: false }, // ✅ Required for Upstash SSL
-  maxRetriesPerRequest: null, 
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+  throw new Error("❌ REDIS_URL is missing—cannot connect to Redis!");
+}
+
+export const redisClient = new Redis(redisUrl, {
+  tls: { rejectUnauthorized: false }, // Required for Upstash
+  maxRetriesPerRequest: null,
   enableOfflineQueue: false,
 });
 
