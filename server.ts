@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors"
 import { Queue } from "bullmq";
 import { getAccountById } from "./db";
 import { redisClient } from "./redisClient"; // ✅ Use central Redis client
@@ -6,6 +7,8 @@ import { Request, Response } from "express";
 import { CryptoAccount, generateExecutionInterval } from "./tradeProcessor";
 
 const app = express();
+app.use(cors());
+app.use(express.json());
 const PORT = Number(process.env.PORT) || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
@@ -14,17 +17,19 @@ app.listen(PORT, "0.0.0.0", () => {
 // ✅ Use Redis client for BullMQ
 const tradeQueue = new Queue("trade-queue", { connection: redisClient });
 
-app.use(express.json());
+
+
 
 // ✅ API to Trigger a Trade Job
 
 app.post("/trade", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { accountId } = req.body;
-    if (!accountId) {
-      res.status(400).json({ error: "Account ID required" });
-      return;
-    }
+  const { accountId, provider, providerAccountId } = req.body;
+
+if (!accountId || !provider || !providerAccountId) {
+  res.status(400).json({ error: "Account ID, Provider, and Provider Account ID required" });
+  return;
+}
 
     console.log(`Checking Redis for account: account:${accountId}`);
     const cachedAccount = await redisClient.get(`account:${accountId}`);
