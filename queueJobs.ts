@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
-import Redis from "ioredis";
 import dotenv from "dotenv";
+import { redisClient } from "./redisClient";
 dotenv.config();
 
 const redisHost = process.env.UPSTASH_REDIS_REST_URL;
@@ -8,15 +8,9 @@ const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 const url = `https://${redisHost}/get/user-data`; // ✅ Ensure correct key
 
 
-const redisClient = new Redis({
-  host: process.env.UPSTASH_REDIS_REST_URL,
-  password: process.env.UPSTASH_REDIS_REST_TOKEN,
-  tls: { rejectUnauthorized: false },
-  maxRetriesPerRequest: null,
-  enableOfflineQueue: false,
-});
+const redis = redisClient;
 
-const tradeQueue = new Queue("tradeQueue", { connection: redisClient });
+const tradeQueue = new Queue("tradeQueue", { connection: redis });
 
 async function fetchRedisData() {
   try {
