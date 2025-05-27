@@ -27,34 +27,28 @@ const tradeQueue = new Queue("trade-queue", { connection: redisClient });
 
 app.post("/trade", async (req: Request, res: Response): Promise<void> => {
   try {
-  const { accountId, provider, providerAccountId } = req.body;
-
-if (!accountId || !provider || !providerAccountId) {
-  res.status(400).json({ error: "Account ID, Provider, and Provider Account ID required" });
-  return;
-}
-
-    console.log(`Checking Redis for account: account:${accountId}`);
-    const cachedAccount = await redisClient.get(`account:${accountId}`);
-    const account: CryptoAccount = cachedAccount ? JSON.parse(cachedAccount) : await getAccountById(accountId.provider, accountId.providerAccountId);
-
-    if (!account) {
-      res.status(404).json({ error: "Account not found" });
+    const { accountId } = req.body;
+    if (!accountId) {
+      res.status(400).json({ error: "Account ID required" });
       return;
     }
 
-    const executionInterval = generateExecutionInterval(account); // ✅ Pass the full account object
+    console.log(`Checking Redis for account: ${accountId}`);
+    const cachedAccount = await redisClient.get(`account:${accountId}`);
 
-    // ✅ Enqueue job in BullMQ with the correct interval
-    await tradeQueue.add("process-trade", { account, interval: executionInterval });
+    if (!cachedAccount) {
+      res.status(404).json({ error: "Account not found in Redis" });
+      return;
+    }
 
-    console.log("Final Account Data:", account);
-    res.json({ message: "Trade request received and queued", account });
+    console.log("✅ Account Found:", cachedAccount);
+    res.json({ message: "Trade request received", account: JSON.parse(cachedAccount) });
   } catch (error) {
-    console.error("Trade request error:", error);
+    console.error("❌ Trade request error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 // ✅ Health Check for Fly.io
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
